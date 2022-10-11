@@ -4,71 +4,82 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 
-def stazeni(url):
-    stazeni = requests.get(url)
-    soup = BeautifulSoup(stazeni.text, 'html.parser')
+
+def download(URL):
+    down = requests.get(URL)
+    soup = BeautifulSoup(down.text, 'html.parser')
     return soup
 
 
-def mesta(soup):
-    seznam_mest = []
-    for l in soup.select('td.cislo a'):
-        seznam_mest.append("https://volby.cz/pls/ps2017nss/"+l["href"])
-    return seznam_mest
+def links(soup):
+    list_links = []
+    for link in soup.select("td.cislo a"):
+        list_links.append('https://volby.cz/pls/ps2017nss/' + link['href'])
+    return list_links
 
-def cisla_okrsku(soup):
-    cisla = []
-    for cislo_okrsku in soup.select('td.cislo a'):
-        cisla.append(cislo_okrsku.get_text())
-        return cisla
 
-def strany(soup, modifier):
-    strany = []
-    for strana in soup.select(f"div.t2_470 table tr td:nth-of-type({modifier})"):
-        strany.append(strana.get_text())
-    return strany
+def nums(soup):
+    nums = []
+    for cislo_ok in soup.select('td.cislo a'):
+        nums.append(cislo_ok.get_text())
+    return nums
 
-def nazev(soup):
-    nazev = []
-    celek = soup.find_all('td', 'cislo')
-    for nazvy in celek:
-        nazev.append(nazvy.find_next_sibling('td').get_text())
-    return nazev
 
-def scrapping(seznam_mest):
+def political(soup, modifier):
+    political = []
+    for strana in soup.select(f'div.t2_470 table tr td:nth-of-type({modifier})'):
+        political.append(strana.get_text())
+    return political
 
-    header = ["code", "location", "registred", "envelopes", "valid"]
-    vysledky = []
+
+def names(soup):
+    name = []
+    all_names = soup.find_all('td', 'cislo')
+    for i in all_names:
+        name.append(i.find_next_sibling('td').get_text())
+    return name
+
+
+def scraping(list_links):
+    print(f'''Stahuji data z {URL}...
+Prosím čekejte, proces může chvíli trvat...''')
+    header = ['code', 'location', 'registred', 'envelopes', 'valid']
+    results = []
     index = 0
-    for obec in seznam_mest:
+    for town in list_links:
         data = []
-        soup = stazeni(web)
-        nazev, cislo = nazev(soup), cisla_okrsku(soup)
-        data.append(nazev[index])
-        data.append(cislo[index])
+        soup = download(URL)
+        name, number = names(soup), nums(soup)
+        data.append(number[index])
+        data.append(name[index])
         index += 1
-        obec_soup = stazeni(obec)
-        for i, j in enumerate(obec_soup.find_all("td", class_="cislo")):
+        soup_town = download(town)
+        for i, j in enumerate(soup_town.find_all('td', class_='cislo')):
             if i in (3, 4, 7):
                 data.append(str(j.get_text()).replace(u'\xa0', u' '))
             elif i == 8:
                 break
-        for pocty_hlasu in strany(obec_soup, 3):
-            data.append(pocty_hlasu)
-        vysledky.append(data)
-    obec_soup = stazeni(obec)
-    for strana in strany(obec_soup, 2):
-        header.append(strana)
-    vystup = (header, vysledky)
-    return vystup
+        for num_votes in political(soup_town, 3):
+            data.append(num_votes)
+        results.append(data)
+    soup_town = download(town)
+    for group in political(soup_town, 2):
+        header.append(group)
+    output = (results, header)
+    return output
 
-def csv_zapis(vystup):
-    with open(f'{nazev_souboru}.csv', mode='w',newline='', encoding='utf-8') as soubor:
-        zapsani = csv.writer(soubor)
-        zapsani.writerow(vystup[0])
-        zapsani.writerow(vystup[1])
+
+def file_write(results):
+    with open(f'{file_name}.csv', mode='w', newline='', encoding='utf-8') as file:
+        writing = csv.writer(file)
+        writing.writerow(results[1])
+        writing.writerows(results[0])
+
 
 if __name__ == '__main__':
-    web = sys.argv[1]
-    nazev_souboru = sys.argv[2]
-    vystup = scrapping(mesta(stazeni(web)))
+    URL = sys.argv[1]
+    file_name = sys.argv[2]
+    vysledky = scraping(links(download(URL)))
+    print(f'Ukládám data do souboru {sys.argv[2]}.csv ...')
+    file_write(vysledky)
+    print(f'Proces dokončen. Data uložena do souboru {sys.argv[2]}.csv.')
