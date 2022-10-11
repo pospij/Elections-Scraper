@@ -1,3 +1,9 @@
+"""Treti projekt do Engeto online Python Akademie
+autor: Jan Pospisil
+email: honza@seamaster.cz
+discord: Jan P#5449
+"""
+
 import csv
 import sys
 
@@ -20,15 +26,15 @@ def links(soup):
 
 def nums(soup):
     nums = []
-    for cislo_ok in soup.select('td.cislo a'):
-        nums.append(cislo_ok.get_text())
+    for number in soup.select('td.cislo a'):
+        nums.append(number.get_text())
     return nums
 
 
 def political(soup, modifier):
     political = []
-    for strana in soup.select(f'div.t2_470 table tr td:nth-of-type({modifier})'):
-        political.append(strana.get_text())
+    for politic in soup.select(f'div.t2_470 table tr td:nth-of-type({modifier})'):
+        political.append(politic.get_text())
     return political
 
 
@@ -75,11 +81,20 @@ def file_write(results):
         writing.writerow(results[1])
         writing.writerows(results[0])
 
+def argv_control():
+    if 'volby.cz' not in URL:
+        print(f'''Zadané URL není správné!
+Ukončuji program!''')
+        quit()
+    else:
+        print('Zadané URL je správné, pokračuji v procesu.')
+        return True
 
 if __name__ == '__main__':
     URL = sys.argv[1]
     file_name = sys.argv[2]
-    vysledky = scraping(links(download(URL)))
+    argv_control()
+    results = scraping(links(download(URL)))
     print(f'Ukládám data do souboru {sys.argv[2]}.csv ...')
-    file_write(vysledky)
+    file_write(results)
     print(f'Proces dokončen. Data uložena do souboru {sys.argv[2]}.csv.')
