@@ -83,7 +83,7 @@ def file_write(results):
 
 def argv_control():
     if 'volby.cz' not in URL:
-        print(f'''Zadané URL není správné!
+        print(f'''Zadané URL není správně!
 Ukončuji program!''')
         quit()
     else:

@@ -3,7 +3,7 @@ Engeto projekt 3.
 
 
 ## Popis
-Tento projekt slouží k extrahování a ukládaní výsledků z parlamentních voleb z roku 2017.
+Tento projekt slouží k extrahování a ukládaní výsledků  parlamentních voleb z roku 2017.
 
 Odkaz [zde](https://volby.cz/pls/ps2017nss/ps3?xjazyk=CZ)
 
@@ -11,12 +11,12 @@ Odkaz [zde](https://volby.cz/pls/ps2017nss/ps3?xjazyk=CZ)
 Použité knihovny jsou uložené v souboru requirements.txt.
 
 Instalace:
-> $ pip install (knihovna)   #nainstalujete knihove dle requirements.txt
+> $ pip install (knihovna)   #nainstalujete knihovny dle requirements.txt
 
 
 ## Spuštění
-Spuštění souboru Scraper.py v příkazovém řádku vyžaduje dva povinné argumenty
-Argumenty se zadavájí jako string
+Spuštění souboru Scraper.py v příkazovém řádku vyžaduje dva povinné argumenty. \
+Argumenty se zadavájí jako string.
 1. argument je odkaz územního celku (Odkaz pod X ve sloupci Výběr obce)
 2. argument je název CSV souboru do kterého chceme data uložit (název bez přípony souboru)
 >python Scraper.py 'odkaz' 'název souboru'
